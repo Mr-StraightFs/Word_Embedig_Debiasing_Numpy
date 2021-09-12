@@ -141,7 +141,7 @@ print("cosine similarity between " + e + " and g, after neutralizing: ", cosine_
 # Equalization Algorithm for Gender-Specific Words
 def equalize(pair, bias_axis, word_to_vec_map):
     """
-    Debias gender specific words by following the equalize method described in the figure above.
+    Debias gender specific words by following the equalize method
 
     Arguments:
     pair -- pair of strings of gender specific words to debias, e.g. ("actress", "actor")
@@ -179,6 +179,17 @@ def equalize(pair, bias_axis, word_to_vec_map):
     e2 = corrected_e_w2B + mu_orth
 
     return e1, e2
+
+print("cosine similarities before equalizing:")
+print("cosine_similarity(word_to_vec_map[\"man\"], gender) = ", cosine_similarity(word_to_vec_map["man"], g))
+print("cosine_similarity(word_to_vec_map[\"woman\"], gender) = ", cosine_similarity(word_to_vec_map["woman"], g))
+print()
+e1, e2 = equalize(("man", "woman"), g, word_to_vec_map)
+print("cosine similarities after equalizing:")
+print("cosine_similarity(e1, gender) = ", cosine_similarity(e1, g))
+print("cosine_similarity(e2, gender) = ", cosine_similarity(e2, g))
+
+
 
 
 
