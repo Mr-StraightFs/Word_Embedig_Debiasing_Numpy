@@ -132,6 +132,53 @@ def neutralize(word, g, word_to_vec_map):
 
     return e_debiased
 
+e = "receptionist"
+print("cosine similarity between " + e + " and g, before neutralizing: ", cosine_similarity(word_to_vec_map["receptionist"], g))
+
+e_debiased = neutralize("receptionist", g, word_to_vec_map)
+print("cosine similarity between " + e + " and g, after neutralizing: ", cosine_similarity(e_debiased, g))
+
+# Equalization Algorithm for Gender-Specific Words
+def equalize(pair, bias_axis, word_to_vec_map):
+    """
+    Debias gender specific words by following the equalize method described in the figure above.
+
+    Arguments:
+    pair -- pair of strings of gender specific words to debias, e.g. ("actress", "actor")
+    bias_axis -- numpy-array of shape (50,), vector corresponding to the bias axis, e.g. gender
+    word_to_vec_map -- dictionary mapping words to their corresponding vectors
+
+    Returns
+    e_1 -- word vector corresponding to the first word
+    e_2 -- word vector corresponding to the second word
+    """
+
+    # Step 1: Select word vector representation of "word".
+    w1, w2 = pair
+    e_w1, e_w2 = word_to_vec_map[w1], word_to_vec_map[w2]
+
+    # Step 2: Compute the mean of e_w1 and e_w2
+    mu = (e_w1 + e_w2) / 2
+
+    # Step 3: Compute the projections of mu over the bias axis and the orthogonal axis
+    mu_B = np.dot(mu, bias_axis) / np.sum(bias_axis * bias_axis) * bias_axis
+    mu_orth = mu - mu_B
+
+    # Step 4: Use equations (7) and (8) to compute e_w1B and e_w2B
+    e_w1B = np.dot(e_w1, bias_axis) / np.sum(bias_axis * bias_axis) * bias_axis
+    e_w2B = np.dot(e_w2, bias_axis) / np.sum(bias_axis * bias_axis) * bias_axis
+
+    # Step 5: Adjust the Bias part of e_w1B and e_w2B using
+    corrected_e_w1B = np.sqrt(np.abs(1 - np.sum(mu_orth * mu_orth))) * (e_w1B - mu_B) / np.linalg.norm(
+        e_w1 - mu_orth - mu_B)
+    corrected_e_w2B = np.sqrt(np.abs(1 - np.sum(mu_orth * mu_orth))) * (e_w2B - mu_B) / np.linalg.norm(
+        e_w2 - mu_orth - mu_B)
+
+    # Step 6: Debias by equalizing e1 and e2 to the sum of their corrected projections
+    e1 = corrected_e_w1B + mu_orth
+    e2 = corrected_e_w2B + mu_orth
+
+    return e1, e2
 
 
 
