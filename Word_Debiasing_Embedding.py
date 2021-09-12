@@ -80,3 +80,67 @@ def complete_analogy(word_a, word_b, word_c, word_to_vec_map):
             max_cosine_sim = cosine_sim
             best_word = w
     return best_word
+
+ # Debiasing Word Vectors
+ # with a Focus on the gender Debiasing
+
+
+g = word_to_vec_map['woman'] - word_to_vec_map['man']
+print(g)
+
+# Print List of names and their similarities with constructed vector
+print ('List of names and their similarities with constructed vector:')
+
+# girls and boys name
+name_list = ['john', 'marie', 'sophie', 'ronaldo', 'priya', 'rahul', 'danielle', 'reza', 'katy', 'yasmin']
+
+for w in name_list:
+    print (w, cosine_similarity(word_to_vec_map[w], g))
+
+# Print Other words and their similarities
+print('Other words and their similarities:')
+word_list = ['lipstick', 'guns', 'science', 'arts', 'literature', 'warrior','doctor', 'tree', 'receptionist',
+             'technology',  'fashion', 'teacher', 'engineer', 'pilot', 'computer', 'singer']
+for w in word_list:
+    print (w, cosine_similarity(word_to_vec_map[w], g))
+
+# Neutralize Bias for Non-Gender Specific Words
+# I Luv Mr.Andrew Ng Right now (M Straight btw)
+
+def neutralize(word, g, word_to_vec_map):
+    """
+    Removes the bias of "word" by projecting it on the space orthogonal to the bias axis.
+    This function ensures that gender neutral words are zero in the gender subspace.
+
+    Arguments:
+        word -- string indicating the word to debias
+        g -- numpy-array of shape (50,), corresponding to the bias axis (such as gender)
+        word_to_vec_map -- dictionary mapping words to their corresponding vectors.
+
+    Returns:
+        e_debiased -- neutralized word vector representation of the input "word"
+    """
+    # Select word vector representation of "word".
+    e = word_to_vec_map[word]
+
+    # Compute e_biascomponent
+    e_biascomponent = np.dot(e, g) / np.sum(g * g) * g
+
+    # Neutralize e by substracting e_biascomponent from it
+    # e_debiased should be equal to its orthogonal projection.
+    e_debiased = e - e_biascomponent
+
+    return e_debiased
+
+
+
+
+
+
+
+
+
+
+
+
+
